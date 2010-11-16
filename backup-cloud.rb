@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'java'
 require 'file_transfer_handler'
 require 'file_map_monitor'

@@ -1,5 +1,5 @@
-require 'java'
 require 'rubygems'
+require 'java'
 require 'socket'
 require 'json'
 require 'lib/hazelcast-1.9.1-SNAPSHOT.jar'
@@ -15,7 +15,7 @@ class FileMapMonitor
         puts "FileMapMonitor: Starting"
         @my_node_name = Socket.gethostname.downcase
         @file_transfer_handler = file_transfer_handler
-        @files_to_backup = Hazelcast.getMap("files_to_backup")
+        @files_to_backup = Hazelcast.getMap(LocalConfig.file_map_name)
         @files_to_backup.addEntryListener(self, true)
         puts "FileMapMonitor: Registered entry listener"
         Thread.new { check_existing_map_entries }
@@ -70,6 +70,7 @@ class FileMapMonitor
     def check_existing_map_entries
         puts "FileMapMonitor: Starting thread to check existing map entries"
         @files_to_backup.all_keys.each do |key|
+            puts "FileMapMonitor: checking #{key}"
             process_entry(key, @files_to_backup[key])
         end
     rescue Exception => e

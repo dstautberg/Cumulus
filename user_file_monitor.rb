@@ -1,5 +1,5 @@
-require 'java'
 require 'rubygems'
+require 'java'
 require 'socket'
 require 'json'
 require 'time'
@@ -15,7 +15,7 @@ class UserFileMonitor
     def initialize
         puts "UserFileMonitor: Starting"
         @my_node_name = Socket.gethostname.downcase
-        @file_map = Hazelcast.getMap("filelist")
+        @file_map = Hazelcast.getMap(LocalConfig.file_map_name)
         Thread.new { monitor_user_files }
     end
 

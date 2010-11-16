@@ -1,5 +1,5 @@
-require 'java'
 require 'rubygems'
+require 'java'
 require 'lib/hazelcast-1.9.1-SNAPSHOT.jar'
 
 java_import com.hazelcast.core.Hazelcast
@@ -9,6 +9,7 @@ java_import com.hazelcast.core.EntryListener
 class BackupFileMonitor
     def initialize(file_transfer_handler)
         puts "BackupFileMonitor: Starting"
+        @file_map = Hazelcast.getMap(LocalConfig.file_map_name)
         @file_transfer_handler = file_transfer_handler
         Thread.new { monitor_backups }
     end
