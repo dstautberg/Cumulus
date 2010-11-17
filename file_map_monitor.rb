@@ -36,6 +36,8 @@ class FileMapMonitor
     def process_entry(key, value)
         # If the entry was from my own node, ignore it.
         # Is that true?  Should I consider it if I have backup repositories configured?
+        puts "[#{Time.now}] Checking entry '#{key}'"
+        key, value = JSON(key), JSON(value)
         return if key['node'] == @my_node_name
 
         # If the entry was marked as user-deleted
