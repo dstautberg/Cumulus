@@ -1,5 +1,7 @@
-require 'rubygems'
-require 'java'
+require 'config/environment'
+
+#require 'rubygems'
+#require 'java'
 require 'file_transfer_handler'
 require 'file_map_monitor'
 require 'user_file_monitor'
