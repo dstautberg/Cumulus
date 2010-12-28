@@ -5,7 +5,7 @@ require 'lib/hazelcast-1.9.1-SNAPSHOT.jar'
 java_import com.hazelcast.core.Hazelcast
 java_import com.hazelcast.core.EntryListener
 
-# Monitor the backup repositories and verify the backups are readable and valid (according to the MD5 hash).
+# Monitor the backup repositories and verify the backup copies are readable and valid (according to the MD5 hash).
 class BackupFileMonitor
     def initialize(file_transfer_handler)
         puts "BackupFileMonitor: Starting"

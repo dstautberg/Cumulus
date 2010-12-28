@@ -1,9 +1,10 @@
 require 'rubygems'
 require 'java'
 require 'socket'
-require 'json'
+#require 'json'
 require 'time'
 require 'lib/hazelcast-1.9.1-SNAPSHOT.jar'
+require 'user_file'
 require 'local_config'
 
 java_import com.hazelcast.core.Hazelcast
@@ -38,19 +39,24 @@ class UserFileMonitor
         full_path = File.expand_path(filename)
         mtime = File.mtime(full_path)
         size = File.size(full_path)
-        key = {'node' => @my_node_name, 'filepath' => full_path}
-        entry = @file_map.get(JSON(key))
+        key = {'node' => @my_node_name.to_s, 'filepath' => full_path.to_s}
+        entry = @file_map.get(key.to_yaml)
         if entry
-            entry = JSON(entry)
+            entry = YAML.load(entry)
             updated = (mtime > Time.parse(entry["last_updated"]) + 2)
         else
             updated = true
         end
         if updated
             puts "[#{Time.now}] Updating map entry for: #{filename}"
-            entry = {'last_updated' => mtime, 'size' => size}
-            @file_map.put(JSON(key), JSON(entry))
+            puts "[#{Time.now}] full_path = #{full_path}"
+            puts "[#{Time.now}] key = #{key.inspect}"
+            entry = {'last_updated' => mtime.to_s, 'size' => size.to_s}
+            @file_map.put(key.to_yaml, entry.to_yaml)
         end
+
+        # Add file info to the local database too
+        UserFile.create!(:filename => filename, :directory => Dir.getwd, :mtime => mtime, :size => size)
     end
 
     def process_dir(dir)

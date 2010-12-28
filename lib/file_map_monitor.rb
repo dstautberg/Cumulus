@@ -37,7 +37,7 @@ class FileMapMonitor
         # If the entry was from my own node, ignore it.
         # Is that true?  Should I consider it if I have backup repositories configured?
         puts "[#{Time.now}] Checking entry '#{key}'"
-        key, value = JSON(key), JSON(value)
+        key, value = YAML.load(key), YAML.load(value)
         return if key['node'] == @my_node_name
 
         # If the entry was marked as user-deleted
@@ -58,7 +58,7 @@ class FileMapMonitor
             puts "[#{Time.now}] Adding self to backuppers list and requesting file"
             value['backuppers'] << @my_node_name
             request_queue_name = "file_request_#{key['node']}"
-            @files_to_backup.put(JSON(key), JSON(value)) 
+            @files_to_backup.put(key.to_yaml, value.to_yaml) 
             @file_transfer_handler.request_file(key['filepath'], request_queue_name)
         end
     end
