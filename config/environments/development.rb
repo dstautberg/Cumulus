@@ -22,5 +22,9 @@ Cumulus::Application.configure do
 
   # Only use best-standards-support built into browsers
   config.action_dispatch.best_standards_support = :builtin
+
+  # App configuration
+  config.user_repositories = ["c:/book"]
+  config.backup_repositories = ["c:/backup"]
 end
 
