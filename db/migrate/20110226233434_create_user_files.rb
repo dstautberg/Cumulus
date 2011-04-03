@@ -1,8 +1,8 @@
 class CreateUserFiles < ActiveRecord::Migration
   def self.up
     create_table :user_files do |t|
-      t.string :directory
-      t.string :filename
+      t.text :directory
+      t.text :filename
       t.datetime :mtime
       t.integer :size
 

@@ -1,8 +1,7 @@
 require 'test_helper'
 
 class UserFileTest < ActiveSupport::TestCase
-  # Replace this with your real tests.
-  test "the truth" do
-    assert true
+  def test1
+    assert UserFile.new
   end
 end

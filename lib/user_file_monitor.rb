@@ -1,11 +1,11 @@
 require 'rubygems'
-require 'java'
 require 'socket'
-#require 'json'
-require 'time'
+require 'java'
 require 'lib/hazelcast-1.9.1-SNAPSHOT.jar'
-require 'user_file'
-require 'local_config'
+
+#require 'json'
+#require 'time'
+#require 'user_file'
 
 java_import com.hazelcast.core.Hazelcast
 java_import com.hazelcast.core.EntryListener
@@ -16,15 +16,20 @@ class UserFileMonitor
     def initialize
         puts "UserFileMonitor: Starting"
         @my_node_name = Socket.gethostname.downcase
-        @file_map = Hazelcast.getMap(LocalConfig.file_map_name)
+        @file_map = Hazelcast.getMap(Cumulus::Application.config.file_map_name)
         Thread.new { monitor_user_files }
+    end
+      
+    def shutdown
+        Hazelcast.shutdownAll
+        # stop the file monitor thread too
     end
 
     def monitor_user_files
         puts "UserFileMonitor: Starting thread to monitor user files"
         # Consider adding sleeps in here to avoid excessive cpu usage.
         while true do
-            LocalConfig.user_repositories.each do |dir|
+            Cumulus::Application.config.user_repositories.each do |dir|
                 process_dir(dir)
             end
             sleep 10

@@ -10,11 +10,11 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101227021239) do
+ActiveRecord::Schema.define(:version => 20110226233434) do
 
   create_table "user_files", :force => true do |t|
-    t.string   "directory"
-    t.string   "filename"
+    t.text     "directory"
+    t.text     "filename"
     t.datetime "mtime"
     t.integer  "size"
     t.datetime "created_at"
