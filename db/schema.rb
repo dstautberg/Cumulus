@@ -21,4 +21,6 @@ ActiveRecord::Schema.define(:version => 20110226233434) do
     t.datetime "updated_at"
   end
 
+  add_index "user_files", ["directory", "filename"], :name => "index_user_files_on_directory_and_filename"
+
 end

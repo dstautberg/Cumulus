@@ -5,9 +5,9 @@ class CreateUserFiles < ActiveRecord::Migration
       t.text :filename
       t.datetime :mtime
       t.integer :size
-
       t.timestamps
     end
+    add_index :user_files, [:directory, :filename]
   end
 
   def self.down

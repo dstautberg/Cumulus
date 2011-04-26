@@ -9,6 +9,7 @@ gem 'jdbc-sqlite3'
 gem 'activerecord-jdbcsqlite3-adapter', '1.1.1'
 gem 'json-jruby'
 gem 'jruby-openssl'
+gem 'eventmachine', '0.12.10'
 
 # Use unicorn as the web server
 # gem 'unicorn'
