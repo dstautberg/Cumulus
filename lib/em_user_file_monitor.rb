@@ -23,16 +23,20 @@ class EmUserFileMonitor
 
   def tick
     @q.pop do |path|
-      if File.ftype(path) == "file"
-        process_file(path)
-      else
-        Dir.foreach(path) do |filename|
-          if not [".",".."].include?(filename)
-            fullpath = File.join(path, filename)
-            puts "* pushing #{fullpath}"
-            @q.push(fullpath)
+      if File.exists?(path)
+        if File.ftype(path) == "file"
+          process_file(path)
+        else
+          Dir.foreach(path) do |filename|
+            if not [".",".."].include?(filename)
+              fullpath = File.join(path, filename)
+              puts "* pushing #{fullpath}"
+              @q.push(fullpath)
+            end
           end
         end
+      else
+        Rails.logger.debug "Path does not exist: #{path}"
       end
     end
     # If we're done, then start over
