@@ -22,7 +22,7 @@ class UserFileMonitor
       
     def shutdown
         Hazelcast.shutdownAll
-        # stop the file monitor thread too
+        # stop the file monitor thread too?
     end
 
     def monitor_user_files

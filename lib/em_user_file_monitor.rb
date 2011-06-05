@@ -3,35 +3,42 @@ require 'lib/hazelcast-1.9.1-SNAPSHOT.jar'
 java_import com.hazelcast.core.Hazelcast
 java_import com.hazelcast.core.EntryListener
 
-# Monitors user repositories for files that need to be backed up
+# Monitors user repositories for files that need to be backed up.
+# This is the EventMachine version.
 class EmUserFileMonitor
+
+  attr_reader :files_to_backup
 
   def initialize
     puts "UserFileMonitor: Starting"
-    @my_node_name = Socket.gethostname.downcase
-    @q = EM::Queue.new
-    push_all_user_repositories(@q)
-    puts "UserFileMonitor.initialize complete"
+    @files_to_process = EM::Queue.new
+    @files_to_backup = EM::Queue.new
+    push_all_user_repositories
+    Rails.logger.debug "UserFileMonitor.initialize complete"
   end
 
-  def push_all_user_repositories(q)
+  def push_all_user_repositories
     Cumulus::Application.config.user_repositories.each { |dir|
-      puts "* pushing #{dir}"
-      q.push(dir)
+      Rails.logger.debug "Pushing #{dir}"
+      @files_to_process.push(File.expand_path(dir))
     }
   end
 
   def tick
-    @q.pop do |path|
+    Rails.logger.debug "@files_to_process.size=#{@files_to_process.size}"
+    @files_to_process.pop do |path|
+      Rails.logger.debug "Processing #{path}"
+      Rails.logger.debug "File.exists?(path)=#{File.exists?(path)}"
       if File.exists?(path)
+        Rails.logger.debug "File.ftype(path)=#{File.ftype(path)}"
         if File.ftype(path) == "file"
           process_file(path)
         else
           Dir.foreach(path) do |filename|
             if not [".",".."].include?(filename)
               fullpath = File.join(path, filename)
-              puts "* pushing #{fullpath}"
-              @q.push(fullpath)
+              Rails.logger.debug "Pushing #{fullpath}"
+              @files_to_process.push(fullpath)
             end
           end
         end
@@ -40,31 +47,35 @@ class EmUserFileMonitor
       end
     end
     # If we're done, then start over
-    push_all_user_repositories(@q) if @q.empty?
+    Rails.logger.debug "Processed all repositories. Starting over..."
+    push_all_user_repositories if @files_to_process.empty?
   end
 
   def process_file(full_path)
+    Rails.logger.debug "Processing file #{full_path}"
     mtime = File.mtime(full_path)
     size = File.size(full_path)
     user_file = UserFile.find_by_full_path(full_path)
     if user_file
+      user_file.update_attributes!(:deleted => false)
       updated = (mtime > user_file.mtime + 2) # use a small buffer to avoid issues with fractional seconds
-      @files_to_backup.push(full_path)
     else
       updated = true
     end
     if updated
-      puts "[#{Time.now}] Updating entry for: #{full_path}"
-      @file_map.put(key.to_yaml, entry.to_yaml)
+      Rails.logger.debug "File needs to be backed up: #{full_path}"
+      dir, filename = File.split(full_path)
+      UserFile.create!(:filename => filename, :directory => dir, :mtime => mtime, :size => size)
+      @files_to_backup.push(full_path)
     end
-
-    # Add file info to the local database too
-    UserFile.create!(:filename => filename, :directory => Dir.getwd, :mtime => mtime, :size => size)
   end
 
   def process_dir(dir)
-    #puts "UserFileMonitor: Checking dir #{dir}"
+    Rails.logger.debug "Processing dir #{dir}"
     Dir.chdir(dir) do
+      # Mark all UserFiles in this directory as deleted. They will get set back to not-deleted
+      # as we process each one, so any file we don't find will keep the deleted flag.
+      UserFile.update_all({:deleted => true}, ["directory=?", dir])
       Dir.foreach(".") do |entry|
         if entry != "." and entry != ".."
           if File.directory?(entry)
@@ -73,9 +84,11 @@ class EmUserFileMonitor
             process_file(entry)
           end
         end
-        # Check all entries in the distributed map for this directory to see if anything was deleted
-        # If so, flag it in the distributed map as deleted.
-        # If it has already been flagged as deleted, and has no registered backups, then we should be clear to remove it from the map.
+      end
+      # Check if all entries in the UserFile table with this directory to see if anything was deleted.
+      UserFile.find(:conditions => ["directory=? and deleted=?", dir, true]).each do |file|
+        # TODO: Notify all nodes with a backup copy that the file was deleted.
+    
       end
     end
   end

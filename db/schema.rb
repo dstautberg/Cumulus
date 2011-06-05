@@ -15,12 +15,13 @@ ActiveRecord::Schema.define(:version => 20110226233434) do
   create_table "user_files", :force => true do |t|
     t.text     "directory"
     t.text     "filename"
-    t.datetime "mtime"
     t.integer  "size"
+    t.datetime "mtime"
+    t.boolean  "deleted"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "user_files", ["directory", "filename"], :name => "index_user_files_on_directory_and_filename"
+  add_index "user_files", ["directory", "filename", "deleted"], :name => "index_user_files_on_directory_and_filename_and_deleted"
 
 end

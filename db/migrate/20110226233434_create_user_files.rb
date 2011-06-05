@@ -3,11 +3,12 @@ class CreateUserFiles < ActiveRecord::Migration
     create_table :user_files do |t|
       t.text :directory
       t.text :filename
-      t.datetime :mtime
       t.integer :size
+      t.datetime :mtime
+      t.boolean :deleted
       t.timestamps
     end
-    add_index :user_files, [:directory, :filename]
+    add_index :user_files, [:directory, :filename, :deleted]
   end
 
   def self.down
