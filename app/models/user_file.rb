@@ -13,8 +13,21 @@
 #
 
 class UserFile < ActiveRecord::Base
-  def self.find_by_full_path(full_path)
-    split = File.split(full_path)
-    find(:first, :conditions => {:directory => split[0], :filename => split[1]})
-  end
+    def self.needs_backup?(full_path)
+        mtime = File.mtime(full_path)
+        size = File.size(full_path)
+        directory, filename = File.split(full_path)
+        user_file = find(:first, :conditions => {:directory => directory, :filename => filename})
+        Rails.logger.debug "Loaded UserFile: #{user_file.inspect}"
+        if user_file
+          updated = (mtime > user_file.mtime + 1) # use a small buffer to avoid issues with fractional seconds
+        else
+          updated = true
+          user_file = UserFile.new(:directory => directory, :filename => filename)
+        end
+        if updated
+          user_file.update_attributes!(:deleted => false, :mtime => mtime, :size => size)
+        end
+        return updated
+    end
 end

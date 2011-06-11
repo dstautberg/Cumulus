@@ -52,20 +52,9 @@ class EmUserFileMonitor
   end
 
   def process_file(full_path)
-    Rails.logger.debug "Processing file #{full_path}"
-    mtime = File.mtime(full_path)
-    size = File.size(full_path)
-    user_file = UserFile.find_by_full_path(full_path)
-    if user_file
-      user_file.update_attributes!(:deleted => false)
-      updated = (mtime > user_file.mtime + 2) # use a small buffer to avoid issues with fractional seconds
-    else
-      updated = true
-    end
-    if updated
+    #Rails.logger.debug "Processing file #{full_path}"
+    if UserFile.needs_backup?(full_path)
       Rails.logger.debug "File needs to be backed up: #{full_path}"
-      dir, filename = File.split(full_path)
-      UserFile.create!(:filename => filename, :directory => dir, :mtime => mtime, :size => size)
       @files_to_backup.push(full_path)
     end
   end
