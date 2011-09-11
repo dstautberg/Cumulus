@@ -1,18 +1,21 @@
 # == Schema Information
-# Schema version: 20110226233434
+# Schema version: 20110813230657
 #
 # Table name: user_files
 #
 #  id         :integer         not null, primary key
 #  directory  :text
 #  filename   :text
-#  mtime      :datetime
 #  size       :integer
+#  mtime      :datetime
+#  deleted    :boolean
 #  created_at :datetime
 #  updated_at :datetime
 #
 
 class UserFile < ActiveRecord::Base
+    has_many :backups, :class_name => "UserFileNode", :foreign_key => :user_file_id
+
     def self.needs_backup?(full_path)
         mtime = File.mtime(full_path)
         size = File.size(full_path)

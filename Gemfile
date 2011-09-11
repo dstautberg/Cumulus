@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.0.7'
+gem 'rails'#, '3.0.7'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -10,6 +10,7 @@ gem 'activerecord-jdbcsqlite3-adapter', '1.1.1'
 gem 'json-jruby'
 gem 'jruby-openssl'
 gem 'eventmachine', '0.12.10'
+gem 'uuid'
 
 # Use unicorn as the web server
 # gem 'unicorn'

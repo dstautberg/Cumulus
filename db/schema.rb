@@ -10,7 +10,31 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110226233434) do
+ActiveRecord::Schema.define(:version => 20110813230657) do
+
+  create_table "disks", :force => true do |t|
+    t.string   "path"
+    t.integer  "free_space"
+    t.integer  "node_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "nodes", :force => true do |t|
+    t.string   "name"
+    t.string   "ip"
+    t.datetime "checked_in_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "user_file_nodes", :force => true do |t|
+    t.integer  "user_file_id"
+    t.integer  "node_id"
+    t.string   "status"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "user_files", :force => true do |t|
     t.text     "directory"
