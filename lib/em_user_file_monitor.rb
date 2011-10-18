@@ -1,8 +1,3 @@
-require 'lib/hazelcast-1.9.1-SNAPSHOT.jar'
-
-java_import com.hazelcast.core.Hazelcast
-java_import com.hazelcast.core.EntryListener
-
 # Monitors user repositories for files that need to be backed up
 class EmUserFileMonitor
 
@@ -63,6 +58,7 @@ class EmUserFileMonitor
       # object that is initialized with the file path to send.  The response will be handled by that instance,
       # and it will pass itself to the followup connect that sends the file data.
     end
+  end
 
   def process_file(path)
     mtime = File.mtime(path)
