@@ -1,5 +1,5 @@
 require 'test_helper'
-require 'em_user_file_monitor'
+require 'user_file_monitor'
 
 class UserFileMonitorTest < ActiveSupport::TestCase
   def test_user_file_monitoring
@@ -8,7 +8,7 @@ class UserFileMonitorTest < ActiveSupport::TestCase
     FileUtils.rm_r(user_files_dir) if File.exist?(user_files_dir)
     Dir.mkdir(user_files_dir)
     Cumulus::Application.config.user_repositories = [user_files_dir]    
-    @monitor = EmUserFileMonitor.new
+    @monitor = UserFileMonitor.new
     Rails.logger.debug "-----------------------------\nTest starting..."
     
     EM.run do 
