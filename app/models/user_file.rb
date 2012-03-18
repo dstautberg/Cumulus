@@ -1,14 +1,3 @@
-# Table name: user_files
-#
-#  id         :integer         not null, primary key
-#  directory  :text
-#  filename   :text
-#  size       :integer
-#  mtime      :datetime
-#  deleted    :boolean
-#  created_at :datetime
-#  updated_at :datetime
-#
 class UserFile < Sequel::Model
     one_to_many :backups, :class => :UserFileNode, :key => :user_file_id
 

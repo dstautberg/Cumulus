@@ -2,13 +2,20 @@
 class UserFileMonitor
 
   def initialize
-    Rails.logger.debug "UserFileMonitor: Starting"
     @local_node = Node.local
     @my_node_name = Socket.gethostname.downcase
-    @paths_to_process = EM::Queue.new
-    @files_needing_backup = EM::Queue.new
-    push_all_user_repositories_onto_queue(config.user_repositories, @paths_to_process)
-    Rails.logger.debug "UserFileMonitor.initialize complete"
+    @paths_to_process = SizedQueue.new(1000)
+    @files_needing_backup = SizedQueue.new(1000)
+    AppLogger.debug "#{self.class.to_s}: initialize complete"
+  end
+
+  def start
+    AppLogger.debug "#{self.class.to_s}: starting"
+    push_all_user_repositories_onto_queue(AppConfig.user_repositories, @paths_to_process)
+  end
+
+  def stop
+
   end
 
   def tick
@@ -28,8 +35,8 @@ class UserFileMonitor
   private
 
     def push_all_user_repositories_onto_queue(user_repositories, queue)
-      suser_repositories.each { |dir|
-        Rails.logger.debug "Queueing path for processing: #{dir}"
+      user_repositories.each { |dir|
+        AppLogger.debug "Queueing path for processing: #{dir}"
         q.push(dir)
       }
     end
@@ -85,10 +92,10 @@ class UserFileMonitor
       # notified that their backup copy is no longer needed.
 
       if updated
-          Rails.logger.debug "File needs backed up: #{path}"
-          user_file.backups.each do |backup|
-              backup.update_attributes!(:status => "invalid")
-          end
+        AppLogger.debug "File needs backed up: #{path}"
+        user_file.backups.each do |backup|
+          backup.update_attributes!(:status => "invalid")
+        end
       end
     end
 
@@ -96,7 +103,7 @@ class UserFileMonitor
       Dir.foreach(path) do |filename|
         if not [".",".."].include?(filename)
           fullpath = File.join(path, filename)
-          Rails.logger.debug "Queueing path for processing: #{fullpath}"
+          AppLogger.debug "Queueing path for processing: #{fullpath}"
           @paths_to_process.push(fullpath)
         end
       end

@@ -1,8 +1,15 @@
 class FileSender
-  MaxActiveTransfers = 10 # put in app config? or make it something that can adjust based on cpu/disk/network load?
-
   def initialize
     @active_transfers = 0
+    AppLogger.debug "#{self.class.to_s}: initialize complete"
+  end
+
+  def start
+    AppLogger.debug "#{self.class.to_s}: starting"
+  end
+
+  def stop
+
   end
 
   def tick

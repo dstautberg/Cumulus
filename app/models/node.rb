@@ -1,12 +1,3 @@
-# Table name: nodes
-#
-#  id            :integer         not null, primary key
-#  name          :string(255)
-#  ip            :string(255)
-#  checked_in_at :datetime
-#  created_at    :datetime
-#  updated_at    :datetime
-#
 class Node < Sequel::Model
     one_to_many :disks
     
@@ -16,7 +7,7 @@ class Node < Sequel::Model
 
     # Returns the node we are running in
     def self.local
-        return @@local if @@local.present?
+        return @@local if @@local
         # Note: the node should really validate its disks every time it starts up
         @@local = first(:name => Socket.gethostname) || create_local_node
         @@local
@@ -25,7 +16,7 @@ class Node < Sequel::Model
     def self.create_local_node
         local = new(:name => Socket.gethostname, :ip => local_ip)
         # check what disks are configured, make sure they are valid, and create Disk models for them 
-        local.save!
+        local.save
         local    
     end
         
