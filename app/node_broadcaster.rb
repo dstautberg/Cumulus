@@ -1,5 +1,5 @@
 class NodeBroadcaster
-  def initialize(config)
+  def initialize
 
   end
 

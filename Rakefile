@@ -1,7 +1,8 @@
-# Add your own tasks in files placed in lib/tasks ending in .rake,
-# for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
+require 'rspec/core/rake_task'
 
-require File.expand_path('../config/application', __FILE__)
-require 'rake'
-
-Cumulus::Application.load_tasks
+namespace :test do
+  desc "Run rspec tests"
+  RSpec::Core::RakeTask.new do |t|
+    t.pattern = "./test/rspec/**/*_spec.rb"
+  end
+end

@@ -1,2 +1,2 @@
-# rvm 1.6.0
-rails runner "require 'main'; Main.start"
+export JRUBY_OPTS=--1.9
+jruby -e "require 'main'; Main.start"

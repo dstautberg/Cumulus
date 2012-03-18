@@ -1,7 +1,7 @@
 # Monitors user repositories for files that need to be backed up.
 class UserFileMonitor
 
-  def initialize(config)
+  def initialize
     Rails.logger.debug "UserFileMonitor: Starting"
     @local_node = Node.local
     @my_node_name = Socket.gethostname.downcase

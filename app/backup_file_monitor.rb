@@ -1,5 +1,5 @@
 class BackupFileMonitor
-  def initialize(config)
+  def initialize
 
   end
 

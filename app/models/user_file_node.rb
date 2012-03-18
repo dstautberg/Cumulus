@@ -1,6 +1,3 @@
-# == Schema Information
-# Schema version: 20110813230657
-#
 # Table name: user_file_nodes
 #
 #  id           :integer         not null, primary key
@@ -10,8 +7,7 @@
 #  created_at   :datetime
 #  updated_at   :datetime
 #
-
-class UserFileNode < ActiveRecord::Base
-    belongs_to :user_file
-    belongs_to :node
+class UserFileNode < Sequel::Model
+    many_to_one :user_file
+    many_to_one :node
 end

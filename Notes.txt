@@ -1,7 +1,0 @@
-3/4/2012
-- Having trouble using ruby 1.9.3 because eventmachine requires dev tools to compile.
-- Having trouble using jruby 1.6.7.  
-	- Running "C:\Users\Dean\workspace\Cumulus>bundle exec rake test" gets "bundler: command not found: rake", even though rake is installed.
-	C:\Users\Dean\workspace\Cumulus>bundle show rake
-	C:/Users/Dean/.pik/rubies/JRuby-167/lib/ruby/gems/1.8/gems/rake-0.9.2
-	

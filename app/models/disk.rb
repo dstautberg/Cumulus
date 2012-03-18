@@ -1,6 +1,3 @@
-# == Schema Information
-# Schema version: 20110813230657
-#
 # Table name: disks
 #
 #  id         :integer         not null, primary key
@@ -10,7 +7,6 @@
 #  created_at :datetime
 #  updated_at :datetime
 #
-
-class Disk < ActiveRecord::Base
-    belongs_to :node
+class Disk < Sequel::Model
+    many_to_one :node
 end

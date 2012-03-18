@@ -1,6 +1,3 @@
-# == Schema Information
-# Schema version: 20110813230657
-#
 # Table name: nodes
 #
 #  id            :integer         not null, primary key
@@ -10,15 +7,8 @@
 #  created_at    :datetime
 #  updated_at    :datetime
 #
-
-# When a node starts up, it makes sure it has a node object for itself in the database (update the ip address at 
-# this point?), checks the disks that are configured and makes sure they are accessible (updating the Disks in the
-# database), and then sends out a broadcast message with the node and disk information.  The content of that message
-# will be Node.me.to_transfer_hash, serialized to JSON.  Maybe there will be a status or message type field too, to
-# differentiate between "starting", "running", and "shutdown" messages.
-
-class Node < ActiveRecord::Base
-    has_many :disks
+class Node < Sequel::Model
+    one_to_many :disks
     
     BackupCopies = 3
     
