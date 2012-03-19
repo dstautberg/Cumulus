@@ -7,4 +7,5 @@ gem 'jruby-openssl'
 
 group :test do
   gem 'rspec'
+  gem 'factory_girl'
 end

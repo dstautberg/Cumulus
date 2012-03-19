@@ -1,8 +1,6 @@
 class Node < Sequel::Model
     one_to_many :disks
     
-    BackupCopies = 3
-    
     @@local = nil
 
     # Returns the node we are running in
@@ -19,12 +17,18 @@ class Node < Sequel::Model
         local.save
         local    
     end
-        
-    def pick_target_nodes(file_size)
-        # Pick a random one for starters, but make sure it has enough free space to store this file.
-        # Get a randomized list of all nodes except myself
-        # Go through the nodes, and the disks for each node, and return the first ones that
-        # have enough space.
+
+    def self.new_target_nodes(backups, path)
+      AppLogger.debug "Node.new_target_nodes"
+      new_nodes = []
+      if backups.size < AppConfig.min_backup_copies
+        diff = AppConfig.min_backup_copies - backups.size
+        AppLogger.debug "Need #{diff} more backup nodes"
+        available_nodes = Node.all - [Node.local] - backups.map{|b| b.node}
+        new_nodes.concat(available_nodes[0,diff])
+        AppLogger.debug "New nodes: #{new_nodes.inspect}"
+      end
+      new_nodes
     end
 
     def to_transfer_hash

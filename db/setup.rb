@@ -31,7 +31,7 @@ DB.create_table!(:user_files) do
   DateTime :updated_at
 end
 
-DB.create_table!(:user_files) do
+DB.create_table!(:user_file_nodes) do
   primary_key :id
   Integer :user_file_id
   Integer :node_id
