@@ -1,11 +1,22 @@
 class FileSender
   def initialize
-    @active_transfers = 0
+    @senders = []
     AppLogger.debug "#{self.class.to_s}: initialize complete"
   end
 
   def start
     AppLogger.debug "#{self.class.to_s}: starting"
+    @running = true
+    @thread = Thread.new do
+      begin
+        while @running do
+          tick
+          sleep AppConfig.file_sender_sleep_time
+        end
+      rescue Exception => e
+        AppLogger.error e
+      end
+    end
   end
 
   def stop
@@ -13,9 +24,32 @@ class FileSender
   end
 
   def tick
-    return @active_transfers >= MaxActiveTransfers
-#    Otherwise, it queries the UserFileNode table to see if there is a transfer that is "not started" (order by oldest first?).
-#    Initiates a connection to the target node using Connection.stream_file_data, updates the status to "in progress", and updates the number of sends in progress.
-#    Sets a callback on the FileStreamer (http://eventmachine.rubyforge.org/EventMachine/FileStreamer.html) to close the file, decrement the number of sends-in-progress, and mark the transfer status to "complete".
+    return if @senders.size >= AppConfig.max_active_uploads
+
+    user_file_node = UserFileNode.filter(:status => "not started").order(:updated_at).first
+    node = user_file_node.node
+    file = user_file_node.user_file
+
+    # Calculate MD5 hash for file
+    hash = "1234"
+
+    # Connect and send the file metadata
+    socket = TCPSocket.new(node.ip, node.port)
+    socket.puts(JSON(:path => file.directory, :name => file.filename, :size => file.size, :hash => hash))
+
+    # Read the response containing what port to send the file data to
+    response = JSON(socket.gets)
+    data_port = response["port"]
+
+    # Open the file and send it to the new port
+    open(file.fullpath, "rb") do |f|
+      socket = TCPSocket.new(node.ip, data_port)
+      data = f.read(1000)
+      while data.size > 0 do
+        socket.send(data)
+        data = f.read(1000)
+      end
+      socket.close
+    end
   end
 end

@@ -44,6 +44,10 @@ class UserFile < Sequel::Model
     end
   end
 
+  def full_path
+    File.join(directory, filename)
+  end
+
   def modified_at
     values[:modified_at].nil? ? nil : Time.parse(values[:modified_at])
   end

@@ -15,6 +15,7 @@ DB.create_table!(:nodes) do
   primary_key :id
   String :name
   String :ip
+  Integer :port
   DateTime :checked_in_at
   DateTime :created_at
   DateTime :updated_at
