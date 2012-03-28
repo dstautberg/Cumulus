@@ -10,8 +10,9 @@ class FileReceiveListener
   def start
     AppLogger.debug "#{self.class.to_s}: starting"
     server = TCPServer.open(0)
+    @running = true
     Node.local.update(:port => server.addr[1])
-    loop do
+    while @running do
       client = server.accept
       AppLogger.debug "Got connection from #{client.inspect}"
       receiver = @receivers.find {|r| r.available?}
@@ -28,6 +29,7 @@ class FileReceiveListener
   end
 
   def stop
+    @running = false
     @receivers.each {|r| r.stop}
     @receivers.each {|r| r.join}
   end

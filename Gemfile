@@ -2,7 +2,7 @@ source 'http://rubygems.org'
 
 gem 'sequel'
 gem 'jdbc-sqlite3'
-gem 'json-jruby'
+gem 'json'
 gem 'jruby-openssl'
 
 group :test do

@@ -13,8 +13,6 @@ GEM
     jruby-openssl (0.7.6.1)
       bouncy-castle-java (>= 1.5.0146.1)
     json (1.5.0-java)
-    json-jruby (1.5.0-java)
-      json (= 1.5.0)
     multi_json (1.1.0)
     rspec (2.9.0)
       rspec-core (~> 2.9.0)
@@ -33,6 +31,6 @@ DEPENDENCIES
   factory_girl
   jdbc-sqlite3
   jruby-openssl
-  json-jruby
+  json
   rspec
   sequel

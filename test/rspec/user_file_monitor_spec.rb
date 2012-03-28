@@ -2,16 +2,9 @@ require_relative "../test_helper"
 
 describe UserFileMonitor do
   before do
-    UserFileNode.delete
-    UserFile.delete
-    Node.delete
-    @node1 = Factory.create(:node)
-    @node1.add_disk(Factory.create(:disk))
-    @node2 = Factory.create(:node)
-    @node1.add_disk(Factory.create(:disk))
-    FileUtils.mkpath("tmp")
-    FileUtils.rm Dir.glob('tmp/**/*.*')
-    AppConfig.user_repositories = ["tmp"]
+    setup_user_repository
+    @node1 = NodeFactory.create_with_disk
+    @node2 = NodeFactory.create_with_disk
     @monitor = UserFileMonitor.new
     @monitor.start
   end

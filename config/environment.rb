@@ -4,7 +4,8 @@ require "java"
 require "sequel"
 require "logger"
 require "socket"
-require 'thread'
+require "thread"
+require "json"
 
 AppLogger = Logger.new("log/#{APP_ENV}.log")
 

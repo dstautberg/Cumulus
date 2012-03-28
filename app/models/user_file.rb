@@ -35,7 +35,7 @@ class UserFile < Sequel::Model
       end
       nodes = Node.new_target_nodes(backups, size)
       nodes.each do |node|
-        add_backup(UserFileNode.new(:node => node,
+        self.add_backup(UserFileNode.new(:node => node,
                                     :status => "not started",
                                     :created_at => Time.now,
                                     :updated_at => Time.now))

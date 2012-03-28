@@ -1,2 +1,3 @@
 set APP_ENV=test
-bundle exec jruby -S rspec test/rspec
+call bundle exec jruby db/setup.rb
+call bundle exec jruby -S rspec test/rspec

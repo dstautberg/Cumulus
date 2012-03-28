@@ -1,4 +1,4 @@
-module FileReceiver
+class FileReceiver
   attr_reader :available
 
   def initialize
@@ -9,6 +9,14 @@ module FileReceiver
     @client = client
     @available = false
     @metadata_thread = Thread.new { self.receive_file }
+  end
+
+  def stop
+    @metadata_thread.stop
+  end
+
+  def join
+    @metadata_thread.join
   end
 
   def receive_file
