@@ -1,3 +1,4 @@
 set APP_ENV=test
-call bundle exec jruby db/setup.rb
-call bundle exec jruby -S rspec test/rspec
+rem set JRUBY_OPTS=--1.9
+call bundle exec ruby bin/db_setup.rb
+call bundle exec rspec test/rspec

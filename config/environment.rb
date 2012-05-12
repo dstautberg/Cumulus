@@ -1,16 +1,21 @@
 APP_ENV = ENV["APP_ENV"] || "development"
 require "rubygems"
-require "java"
+#require "java"
 require "sequel"
 require "logger"
 require "socket"
 require "thread"
 require "json"
+require "securerandom"
+require "fileutils"
 
 AppLogger = Logger.new("log/#{APP_ENV}.log")
 
-DB = Sequel.connect("jdbc:sqlite:db/#{APP_ENV}.sqlite3")
+#DB = Sequel.connect("jdbc:sqlite:db/#{APP_ENV}.sqlite3")
+DB = Sequel.sqlite("db/#{APP_ENV}.sqlite3", :logger => AppLogger)
 
-Dir.glob("app/**/*.rb").sort.each {|f| require f }
+$: << "." # add the current directory to the require path
+
+Dir.glob("app/**/*.rb").sort.each { |f| require f.gsub(".rb","") }
 
 require_relative APP_ENV

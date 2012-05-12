@@ -13,12 +13,17 @@ class Main
 
   def self.start
     @@threads << UserFileMonitor.new
-    @@threads << FileSender.new
+    @@threads << FileSendMonitor.new
     @@threads << BackupFileMonitor.new
     @@threads << NodeBroadcaster.new
     @@threads << FileReceiveListener.new
     @@threads << NodeBroadcastListener.new
-    @@threads.each {|t| t.start}
+	AppLogger.debug "Created #{@@threads.size} threads"
+    @@threads.each {|t|
+		AppLogger.debug "Starting thread #{t.inspect}"
+		t.start
+		AppLogger.debug "Started thread #{t.inspect}"
+	}
   end
 
   def self.stop

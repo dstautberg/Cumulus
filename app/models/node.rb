@@ -21,10 +21,13 @@ class Node < Sequel::Model
     def self.new_target_nodes(backups, path)
       AppLogger.debug "Node.new_target_nodes"
       new_nodes = []
+	  AppLogger.debug "new_nodes: #{new_nodes.inspect}"
       if backups.size < AppConfig.min_backup_copies
         diff = AppConfig.min_backup_copies - backups.size
         AppLogger.debug "Need #{diff} more backup nodes"
+		AppLogger.debug "Node.all: #{Node.all.inspect}"
         available_nodes = Node.all - [Node.local] - backups.map{|b| b.node}
+		AppLogger.debug "available_nodes: #{available_nodes}"
         new_nodes.concat(available_nodes[0,diff])
         AppLogger.debug "New nodes: #{new_nodes.inspect}"
       end

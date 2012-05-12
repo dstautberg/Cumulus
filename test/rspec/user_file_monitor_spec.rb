@@ -30,7 +30,6 @@ describe UserFileMonitor do
     user_file.directory.should == "tmp"
     user_file.filename.should == "new_file.txt"
     user_file.size.should be > 10
-    AppLogger.debug "*** user_file.modified_at.class=#{user_file.modified_at.class}"
     user_file.modified_at.should be_within(1.0).of(file_modified_time)
     user_file.deleted_at.should be_nil
     user_file.created_at.should be_within(4.0).of(Time.now)

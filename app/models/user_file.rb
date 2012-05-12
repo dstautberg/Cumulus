@@ -48,15 +48,15 @@ class UserFile < Sequel::Model
     File.join(directory, filename)
   end
 
-  def modified_at
-    values[:modified_at].nil? ? nil : Time.parse(values[:modified_at])
-  end
+#  def modified_at
+#    values[:modified_at].nil? ? nil : Time.parse(values[:modified_at])
+#  end
 
-  def created_at
-    values[:created_at].nil? ? nil : Time.parse(values[:created_at])
-  end
+#  def created_at
+#    values[:created_at].nil? ? nil : Time.parse(values[:created_at])
+#  end
 
-  def updated_at
-    values[:updated_at].nil? ? nil : Time.parse(values[:updated_at])
-  end
+#  def updated_at
+#    values[:updated_at].nil? ? nil : Time.parse(values[:updated_at])
+#  end
 end
