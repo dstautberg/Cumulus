@@ -1,2 +1,3 @@
-export JRUBY_OPTS=--1.9
-bundle exec jruby -e "require 'main'; Main.start"
+#export JRUBY_OPTS=--1.9
+bundle
+bundle exec ruby -r ./config/environment -e "Main.run"
