@@ -5,6 +5,7 @@ gem 'sequel'
 gem 'sqlite3'
 gem 'json_pure'
 #gem 'jruby-openssl'
+gem "macaddr"
 
 group :test do
   gem 'rspec'
