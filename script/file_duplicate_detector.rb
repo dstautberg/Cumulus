@@ -1,10 +1,10 @@
 # OptionParser
-# --scan	Starts or continues a scan of the files on the connected computer.
+# --scan	Starts or continues a scan of the files on the local computer.
 # --rescan	Restarts a scan from scratch.
 # --report	Generates a report of all duplicate files.
 # --delete	Process the duplicate file report and deletes files marked for deletion that exist on this computer.
 
-# Scan computer.  Retrieves the current computer's name in a deterministic way, and scans all drives attached to the computer, except for the usb drive that the script is on.  Saves the metadata about the files in a database (filename, path, computer name, file size, last modified time, CRC or MD5 hash?).  Scan is performed in a reproducable manner (sorted disk, directory, and file names) so it can be restarted if it is aborted in the middle of a scan.
+# Scan computer.  Retrieves the current computer's name in a deterministic way, and scans all drives attached to the computer, except for the usb drive that the script is on.  Saves the metadata about the files in a database (filename, path, computer name, file size, last modified time, MD5 hash).  Scan is performed in a reproducible manner (sorted disk, directory, and file names) so it can be restarted if it is aborted in the middle of a scan.
 
 # Continue Scan.  Restarts a scan where it left off.
 
@@ -14,41 +14,86 @@
 
 require 'find'
 require 'macaddr'
+require 'sequel'
+
+MAX_READ_RATE = 10000000 # bytes per second
+READ_SLEEP_TIME = 0.1
+MAX_READ_PER_LOOP = MAX_READ_RATE * READ_SLEEP_TIME
+
+def file_hash(file)
+  digest = Digest::SHA2.new
+  File.open(file, 'rb') do |f|
+    while buffer = f.read(MAX_READ_PER_LOOP)
+      digest.update(buffer)
+      sleep READ_SLEEP_TIME
+    end
+  end
+  digest.hexdigest
+end
 
 start = Time.now
 puts start
 
-puts Mac.addr
+computer_id = Mac.addr
+
+# Create the metadata database if it doesn't exist.  If the schema needs to change during development, just delete the
+# database file and the script will recreate the database with the new schema.
+
+db = Sequel.sqlite("dup.db")
+db.create_table?(:files) do
+  String :computer_id
+  String :filename
+  String :directory
+  Integer :size
+  DateTime :last_modified
+  String :hash
+end
 
 # Get a list of all drives attached to this computer.
 
-require 'Win32API' 
-GetLogicalDriveStrings = Win32API.new("kernel32", "GetLogicalDriveStrings", ['L', 'P'], 'L') 
+require 'Win32API'
+GetLogicalDriveStrings = Win32API.new("kernel32", "GetLogicalDriveStrings", ['L', 'P'], 'L')
 buf = "\0" * 1024
-len = GetLogicalDriveStrings.call(buf.length, buf) 
+len = GetLogicalDriveStrings.call(buf.length, buf)
 drives = buf[0..len].split("\0")
 
 skip_path = File.absolute_path(__FILE__).match /^.*:\//
 
+# Start scanning the files on the drives.  First pass: save "shell" records for all files that exist.
+
 drives.sort.each do |path|
-    begin
-        if File.absolute_path(path).begins_with(skip_path)
-            puts "Skipping #{path}, which is the drive we are running on"
-        else
-            # I'm not sure if it's possible to have Find.find go through the directory in a consistent manner.
-            # Maybe the initial pass can just save the paths, and a separate thread/queue can fill in the metadata.
-            # That way the Continue Scan use case can rebuild the file list, since that doesn't take too long, and let
-            # the metadata thread just fill in what needs to be filled in.
-            Find.find(path) do |f|
-                puts f
-                # Get metadata about the file (filename, path, computer name, file size, last modified time, CRC or MD5 hash?)
-                # Save a record to the database
-            end
+  begin
+    if File.absolute_path(path).start_with?(skip_path)
+      puts "Skipping #{path}, which is the drive we are running on"
+    else
+      Find.find(path) do |f|
+        if File.file?(f)
+          directory, filename = File.split(f)
+          rows = db[:files].where(:computer_id => computer_id, :filename => filename, :directory => directory).all
+          if rows.empty?
+            puts "Adding file info for #{f}"
+            db[:files].insert(:computer_id => computer_id, :filename => filename, :directory => directory)
+          end
         end
-    rescue => e
-        # This will catch errors for things like cd drives that have no disk in them
-        puts "Error: #{e.inspect} on #{path}"
+      end
     end
+  rescue => e
+    # This will catch errors for things like cd drives that have no disk in them
+    puts "Error: #{e.inspect} on #{path}"
+  end
+end
+
+# Second pass: Retrieve metadata for the files that don't have it yet
+
+while true
+  rows = db[:files].where(:computer_id => computer_id, :hash => nil).limit(100).all
+  break if rows.empty?
+
+  rows.each do |row|
+    f = File.join(row[:directory], row[:filename])
+    puts "Recording metadata for #{f}"
+    row.update(:size => File.size(f), :last_modified => File.mtime(f), :hash => file_hash(f))
+  end
 end
 
 finish = Time.now

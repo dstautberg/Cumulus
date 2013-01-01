@@ -1,3 +1,6 @@
+# This is a proof-of-concept script for searching a directory tree of files and saving all the file metadata to
+# a sqlite database.  It also includes a rate limiter to limit the amount of data it reads from disk per second.
+
 require "find"
 require "sequel"
 require "digest"

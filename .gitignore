@@ -3,3 +3,4 @@ log/*.log
 tmp/**/*
 .idea/*
 db/*.sqlite3
+*.db
