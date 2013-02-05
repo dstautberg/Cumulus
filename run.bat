@@ -1,4 +1,4 @@
 rem set JRUBY_OPTS=--1.9
 call pik 193
-bundle
-bundle exec call ruby -r config/environment -e "Main.run"
+call bundle
+call bundle exec ruby -r "./app/main" -e "Main.run"
