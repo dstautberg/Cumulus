@@ -1,3 +1,5 @@
+load 'config/environment.rb'
+
 class Main
   @@threads = []
 

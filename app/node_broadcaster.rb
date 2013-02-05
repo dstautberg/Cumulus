@@ -13,6 +13,8 @@ class NodeBroadcaster
         sleep AppConfig.node_broadcaster_sleep_time
       end
     end
+  rescue Exception => e
+    AppLogger.debug "#{self.class.to_s}: #{e.inspect}\n#{e.backtrace.join("\n")}"
   end
 
   def stop
@@ -33,5 +35,15 @@ class NodeBroadcaster
     #ensure
     #  socket.close 
     #end
+    AppLogger.debug "#{self.class.to_s}: tick"
+    begin
+      socket = UDPSocket.open
+      socket.setsockopt(Socket::IPPROTO_IP, Socket::IP_TTL, [1].pack('i'))
+      socket.send(JSON(Node.local), 0, NodeBroadcastListener::MULTICAST_ADDR, NodeBroadcastListener::PORT)
+    ensure
+      socket.close
+    end
+  rescue Exception => e
+    AppLogger.debug "#{self.class.to_s}: #{e.inspect}\n#{e.backtrace.join("\n")}"
   end
 end
