@@ -35,6 +35,7 @@ class NodeBroadcastListener
     end
   rescue Exception => e
     AppLogger.debug "#{self.class.to_s}: #{e.inspect}\n#{e.backtrace.join("\n")}"
+  end
 
   def stop
 
