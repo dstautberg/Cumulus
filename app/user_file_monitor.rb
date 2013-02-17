@@ -14,17 +14,13 @@ class UserFileMonitor
     push_all_user_repositories_onto_queue(@paths_to_process)
     @running = true
     @thread = Thread.new do
-      begin
-        while @running do
-		  AppLogger.debug "UserFileMonitor: calling tick"
+      while @running do
+        begin
           tick
-		  AppLogger.debug "UserFileMonitor: tick finished, sleep for #{AppConfig.user_file_monitor_sleep_time} seconds"
-          sleep AppConfig.user_file_monitor_sleep_time
-		  AppLogger.debug "UserFileMonitor: done sleeping"
+        rescue Exception => e
+          AppLogger.error e
         end
-		AppLogger.debug "UserFileMonitor: while looped is finished"
-	  rescue Exception => e
-        AppLogger.error e
+        sleep AppConfig.user_file_monitor_sleep_time
       end
     end
   end
@@ -33,7 +29,7 @@ class UserFileMonitor
   	AppLogger.debug "UserFileMonitor.stop started"
     @running = false
     @thread.join
-	AppLogger.debug "UserFileMonitor.stop finished"
+	  AppLogger.debug "UserFileMonitor.stop finished"
   end
 
   def tick
@@ -49,7 +45,7 @@ class UserFileMonitor
 
     # If we're done, then start over
     push_all_user_repositories_onto_queue(@paths_to_process) if @paths_to_process.empty?
-	AppLogger.debug "UserFileMonitor.tick finished"
+	  AppLogger.debug "UserFileMonitor.tick finished"
   end
 
   private

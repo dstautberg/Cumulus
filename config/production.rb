@@ -1,0 +1,1 @@
+AppLogger.level = Logger::DEBUG

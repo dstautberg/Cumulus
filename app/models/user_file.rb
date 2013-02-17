@@ -26,6 +26,10 @@ class UserFile < Sequel::Model
   end
 
   def update_backup_entries
+    # TODO: This logic needs to change.
+    # Instead of treating a node as available or not available for a backup, I need to look at all the backup repos for each node.
+    # 1) We should be able back up a file from a user repo on a node to a backup repo on the same node.
+    # 2) We should be able back up a file to two backup repos that are on the same node.
     AppLogger.debug "*** update_backup_entries: updated=#{updated}"
     if updated
       AppLogger.debug "File needs backed up: #{self.inspect}"

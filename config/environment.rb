@@ -19,3 +19,4 @@ $: << "." # add the current directory to the require path
 Dir.glob("app/**/*.rb").sort.each { |f| require f.gsub(".rb","") }
 
 require_relative APP_ENV
+require_relative "local" # used to override configuration for a single machine
