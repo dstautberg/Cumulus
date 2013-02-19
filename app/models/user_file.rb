@@ -1,7 +1,8 @@
 class UserFile < Sequel::Model
-  one_to_many :backups, :class => :UserFileNode, :key => :user_file_id
+  one_to_many :backup_targets
   attr_accessor :updated
 
+  # Retrieves a UserFile instance given the full path to the file.  Returns nil if the file doesn't exist in the database yet.
   def self.find_by_full_path(path)
     mtime = File.mtime(path)
     size = File.size(path)
@@ -25,25 +26,26 @@ class UserFile < Sequel::Model
     AppLogger.error e
   end
 
+  # This method makes sure this UserFile has the appropriate number of backup targets, if not it creates them.
+  # A BackupTarget with a status of "not started" is what triggers the FileSendMonitor to connect to the
+  # target node and start sending the file.
   def update_backup_entries
-    # TODO: This logic needs to change.
-    # Instead of treating a node as available or not available for a backup, I need to look at all the backup repos for each node.
-    # 1) We should be able back up a file from a user repo on a node to a backup repo on the same node.
-    # 2) We should be able back up a file to two backup repos that are on the same node.
     AppLogger.debug "*** update_backup_entries: updated=#{updated}"
     if updated
       AppLogger.debug "File needs backed up: #{self.inspect}"
       backups.each do |backup|
+        # TODO: Think about what all needs to happen here.
+        # In particular, should existing transfers for this file be stopped and restarted?
         backup.save(:status => "invalid")
         AppLogger.debug "Invalidated existing backup entry: #{backup.inspect}"
       end
-      nodes = Node.new_target_nodes(backups, size)
-      nodes.each do |node|
-        self.add_backup(UserFileNode.new(:node => node,
-                                    :status => "not started",
-                                    :created_at => Time.now,
-                                    :updated_at => Time.now))
-        AppLogger.debug "Added new backup entry: #{backups.last.inspect}"
+      if backups.size < AppConfig.min_backup_copies
+        backups_needed = AppConfig.min_backup_copies - backups.size
+        # Get all the disks for all nodes, filter out the ones without enough free space, then choose from them randomly.
+        disks = Disk.where{:free_space >= self.size}.all.shuffle
+        backups_needed.times do
+          self.add_backup_target(BackupTarget.new(:disk => disks.pop, :status => "not started", :created_at => Time.now, :updated_at => Time.now))
+        end
       end
     end
   end

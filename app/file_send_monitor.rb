@@ -34,7 +34,10 @@ class FileSendMonitor
     AppLogger.debug "#{self.class.to_s}: tick, active_senders=#{active_senders}"
     return if active_senders >= AppConfig.max_active_uploads
 
-    user_file_node = UserFileNode.filter(:status => "not started").order(:updated_at).first
+    # TODO: Also check for 'invalid' status?
+    # To consider: Make sure we don't have two transfers in progress for the same file.  Maybe the file FileSender thread
+    # should be responsible for checking the invalid status, then stopping the transfer and resetting the status to "not started".
+    user_file_node = BackupTarget.filter(:status => "not started").order(:updated_at).first
     AppLogger.debug "#{self.class.to_s}: user_file_node=#{user_file_node}"
     if user_file_node
       node = user_file_node.node
