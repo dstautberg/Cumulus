@@ -21,6 +21,7 @@ DB.create_table!(:disks) do
   Integer :node_id
   DateTime :created_at
   DateTime :updated_at
+  DateTime :invalid_at # Set when a disk is no longer accessible
 end
 
 # Each record is a file in a user repository that needs to be backed up.

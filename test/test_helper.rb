@@ -8,13 +8,14 @@ class Sequel::Model
   end
 end
 
-Dir.glob("test/factories/**/*.rb").sort.each {|f| require f }
+FactoryGirl.find_definitions
 
 RSpec.configure do |config|
   config.before(:each) do
-    UserFileNode.delete
+    BackupTarget.delete
     UserFile.delete
     Node.delete
+    Disk.delete
   end
 end
 

@@ -8,6 +8,7 @@ require "thread"
 require "json"
 require "securerandom"
 require "fileutils"
+require "sys/filesystem"
 
 AppLogger = Logger.new("log/#{APP_ENV}.log")
 

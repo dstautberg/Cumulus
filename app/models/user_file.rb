@@ -33,18 +33,20 @@ class UserFile < Sequel::Model
     AppLogger.debug "*** update_backup_entries: updated=#{updated}"
     if updated
       AppLogger.debug "File needs backed up: #{self.inspect}"
-      backups.each do |backup|
+      backup_targets.each do |backup|
         # TODO: Think about what all needs to happen here.
         # In particular, should existing transfers for this file be stopped and restarted?
         backup.save(:status => "invalid")
         AppLogger.debug "Invalidated existing backup entry: #{backup.inspect}"
       end
-      if backups.size < AppConfig.min_backup_copies
-        backups_needed = AppConfig.min_backup_copies - backups.size
+      if backup_targets.size < AppConfig.min_backup_copies
+        backup_targets_needed = AppConfig.min_backup_copies - backup_targets.size
         # Get all the disks for all nodes, filter out the ones without enough free space, then choose from them randomly.
-        disks = Disk.where{:free_space >= self.size}.all.shuffle
-        backups_needed.times do
-          self.add_backup_target(BackupTarget.new(:disk => disks.pop, :status => "not started", :created_at => Time.now, :updated_at => Time.now))
+        disks = Disk.where("free_space >= ?", self.size).all.shuffle
+        backup_targets_needed.times do
+          disk = disks.pop
+          next if disk.nil?
+          self.add_backup_target(BackupTarget.new(:disk => disk, :status => "not started", :created_at => Time.now, :updated_at => Time.now))
         end
       end
     end
