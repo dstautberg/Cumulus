@@ -83,6 +83,8 @@ class UserFileMonitor
     AppLogger.debug "Processing file #{path}"
     user_file = UserFile.find_by_full_path(path)
     user_file.update_backup_entries
+  rescue Exception => e
+    AppLogger.error e
   end
 
   def process_dir(path)
@@ -98,7 +100,9 @@ class UserFileMonitor
         end
       end
     end
-    # Check all UserFile's in this directory to see if anything was deleted.
+    # Also check all UserFile's in this directory to see if anything was deleted.
     # If so, notify backuppers that it was deleted.
+  rescue Exception => e
+    AppLogger.error e
   end
 end
