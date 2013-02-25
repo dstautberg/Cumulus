@@ -3,6 +3,7 @@ require_relative "../test_helper"
 describe UserFileMonitor do
   before do
     setup_user_repository
+    AppConfig.user_file_monitor_sleep_time = 0
     @monitor = UserFileMonitor.new
     @monitor.start
   end
@@ -44,7 +45,7 @@ describe UserFileMonitor do
     end
 
     context "when there is a second node" do
-      it "flags the file for backup to the both nodes" do
+      it "flags the file for backup to both nodes" do
         @node2 = NodeFactory.create_with_disk
 
         # Make sure nothing happens right away
