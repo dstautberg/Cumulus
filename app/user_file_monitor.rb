@@ -83,6 +83,7 @@ class UserFileMonitor
     AppLogger.debug "Processing file #{path}"
     user_file = UserFile.find_by_full_path(path)
     user_file.update_backup_entries
+    sleep 0.1
   rescue Exception => e
     AppLogger.error e
   end
