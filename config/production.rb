@@ -1,1 +1,1 @@
-AppLogger.level = Logger::DEBUG
+AppLogger.level = Logger::WARN

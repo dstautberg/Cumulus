@@ -28,6 +28,7 @@ class FileReceiver
   
     # Initially we get just get the file metadata
     data = JSON(@client.gets)
+    AppLogger.debug "FileReceiver.receive(): data=#{data.inspect}"
     path = data["path"]
     name = data["name"]
     size = data["size"]

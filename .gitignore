@@ -4,3 +4,4 @@ tmp/**/*
 .idea/*
 db/*.sqlite3
 *.db
+config/local.rb
