@@ -49,7 +49,8 @@ class FileSendMonitor
       # Connect and send the file metadata
       AppLogger.info "#{self.class.to_s}: Connecting to #{node.ip}:#{node.port}"
       socket = TCPSocket.new(node.ip, node.port)
-      target_path = File.join(backup_target.disk.path, file.directory)
+      directory = file.directory.gsub(":","_") # if the directory includes a colon (like with a drive letter), convert it to an underscore
+      target_path = File.join(backup_target.disk.path, directory)
 	    metadata = JSON(:path => target_path, :name => file.filename, :size => file.size, :hash => hash)
 	    AppLogger.debug "#{self.class.to_s}: Connected, sending #{metadata}"
       socket.puts(metadata)
@@ -64,6 +65,7 @@ class FileSendMonitor
         sender = FileSender.new(file.full_path, node.ip, data_port)
         sender.start
         @senders << sender
+        # TODO: Update the backup target status to "in-progress"
       else
         AppLogger.warn "#{self.class.to_s}: Didn't get proper response from node, unable to send file"
       end
