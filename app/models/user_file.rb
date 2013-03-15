@@ -36,7 +36,7 @@ class UserFile < Sequel::Model
       backup_targets.each do |backup|
         # TODO: Think about what all needs to happen here.
         # In particular, should existing transfers for this file be stopped and restarted?
-        backup.save(:status => "invalid")
+        backup.invalid
         AppLogger.debug "Invalidated existing backup entry: #{backup.inspect}"
       end
       if backup_targets.size < AppConfig.min_backup_copies
@@ -46,7 +46,7 @@ class UserFile < Sequel::Model
         backup_targets_needed.times do
           disk = disks.pop
           next if disk.nil?
-          self.add_backup_target(BackupTarget.new(:disk => disk, :status => "not started", :created_at => Time.now, :updated_at => Time.now))
+          self.add_backup_target(BackupTarget.new(:disk => disk))
         end
       end
     end

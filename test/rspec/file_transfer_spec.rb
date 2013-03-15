@@ -22,7 +22,7 @@ describe "Transfering Files" do
 
     # Create a UserFileNode to trigger a file send
     user_file = UserFile.find_by_full_path(path)
-    target = BackupTarget.new(:disk => @other_node.disks.first, :status => "not started", :created_at => Time.now, :updated_at => Time.now)
+    target = BackupTarget.new(:disk => @other_node.disks.first)
     user_file.add_backup_target(target)
 
     @sender.tick

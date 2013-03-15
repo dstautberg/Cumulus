@@ -42,6 +42,7 @@ DB.create_table!(:backup_targets) do
   Integer :user_file_id
   Integer :disk_id
   String :status
+  String :error_message
   DateTime :created_at
   DateTime :updated_at
 end
