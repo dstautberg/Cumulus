@@ -25,7 +25,7 @@ class NodeBroadcaster
   def tick
     # Send out a broadcast packet with information about my node
     # JSON(Node.local)
-	
+
     #MULTICAST_ADDR = "225.4.5.6" 
     #PORT= 5000
     #begin

@@ -27,6 +27,7 @@ MAX_READ_PER_LOOP = MAX_READ_RATE * READ_SLEEP_TIME
 puts "MAX_READ_PER_LOOP=#{MAX_READ_PER_LOOP}"
 
 @bytes_read = 0
+
 def file_hash(file)
   digest = Digest::SHA2.new
   File.open(file, 'rb') do |f|

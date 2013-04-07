@@ -17,7 +17,7 @@ describe UserFileMonitor do
     context "when there is only one node" do
       it "flags the file for backup to the same node" do
         # Create a new file
-        open("tmp/new_file.txt","wt") { |f| f.write("back me up please") }
+        open("tmp/new_file.txt", "wt") { |f| f.write("back me up please") }
         file_modified_time = Time.now
         sleep 3
 
@@ -53,7 +53,7 @@ describe UserFileMonitor do
         UserFile.count.should == 0
 
         # Create a new file
-        open("tmp/new_file.txt","wt") { |f| f.write("back me up please") }
+        open("tmp/new_file.txt", "wt") { |f| f.write("back me up please") }
         file_modified_time = Time.now
         sleep 3
 

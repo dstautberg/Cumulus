@@ -3,9 +3,9 @@ class FileReceiver
     @node = node
     @available = true
   end
-  
+
   def available?
-	@available
+    @available
   end
 
   def handle(client)
@@ -25,7 +25,7 @@ class FileReceiver
 
   def receive
     AppLogger.debug "FileReceiver.receive"
-  
+
     # Initially we get just get the file metadata
     data = JSON(@client.gets)
     AppLogger.debug "FileReceiver.receive(): data=#{data.inspect}"
@@ -47,7 +47,7 @@ class FileReceiver
     directory = File.split(path)[0]
     FileUtils.mkdir_p(directory) unless File.exists?(directory)
     FileUtils.rm(path) if File.exists?(path)
-    
+
     # Should I have "reserved" space for files that are being transferred, so I don't over-commit?
     # If I just have a separate field for reserved space somewhere, I need it to be updated whenever data is actually
     # written for it to be accurate.
@@ -67,15 +67,15 @@ class FileReceiver
 
     # Start writing the data to the file
     open(path, "wb") do |f|
-        AppLogger.debug "FileReceiver: opened #{path}"
-		while true
-            data = client2.recv(1000)
-            AppLogger.debug "FileReceiver: got #{data.size} bytes"
-            break if data.size <= 0
-            AppLogger.debug "FileReceiver: writing data"
-            f.write(data)
-            AppLogger.debug "FileReceiver: data written"
-        end
+      AppLogger.debug "FileReceiver: opened #{path}"
+      while true
+        data = client2.recv(1000)
+        AppLogger.debug "FileReceiver: got #{data.size} bytes"
+        break if data.size <= 0
+        AppLogger.debug "FileReceiver: writing data"
+        f.write(data)
+        AppLogger.debug "FileReceiver: data written"
+      end
     end
     AppLogger.debug "FileReceiver: done writing to file"
 

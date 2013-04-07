@@ -41,7 +41,6 @@ class UserFileMonitor
     AppLogger.debug "UserFileMonitor.tick finished"
   end
 
-
   private
 
   def verify_backup_repositories
@@ -101,8 +100,8 @@ class UserFileMonitor
         end
       end
     end
-    # Also check all UserFile's in this directory to see if anything was deleted.
-    # If so, notify backuppers that it was deleted.
+      # Also check all UserFile's in this directory to see if anything was deleted.
+      # If so, notify backuppers that it was deleted.
   rescue Exception => e
     AppLogger.error e
   end

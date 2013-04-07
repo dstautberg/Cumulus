@@ -20,15 +20,15 @@ class Main
     @@threads << FileSendMonitor.new
     @@threads << BackupFileMonitor.new
     @@threads << NodeBroadcaster.new
-	  AppLogger.debug "Created #{@@threads.size} threads"
-    @@threads.each {|t|
-		  AppLogger.debug "Starting thread #{t.class}"
-		  t.start
-		  AppLogger.debug "Done starting thread #{t.class}"
-	}
+    AppLogger.debug "Created #{@@threads.size} threads"
+    @@threads.each { |t|
+      AppLogger.debug "Starting thread #{t.class}"
+      t.start
+      AppLogger.debug "Done starting thread #{t.class}"
+    }
   end
 
   def self.stop
-    @@threads.each {|t| t.stop}
+    @@threads.each { |t| t.stop }
   end
 end

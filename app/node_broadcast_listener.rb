@@ -27,7 +27,7 @@ class NodeBroadcastListener
     @listener = Thread.new do
       begin
         @running = true
-        ip =  IPAddr.new(MULTICAST_ADDR).hton + IPAddr.new("0.0.0.0").hton
+        ip = IPAddr.new(MULTICAST_ADDR).hton + IPAddr.new("0.0.0.0").hton
         sock = UDPSocket.new
         sock.setsockopt(Socket::IPPROTO_IP, Socket::IP_ADD_MEMBERSHIP, ip)
         sock.bind(Socket::INADDR_ANY, PORT)

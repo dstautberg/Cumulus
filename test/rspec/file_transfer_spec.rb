@@ -16,7 +16,7 @@ describe "Transfering Files" do
     # Create file that needs to be backed up
     path = File.join(@user_dir, "file_to_send.txt")
     file_data = "this is the data"
-    open(path,"w") do |f|
+    open(path, "w") do |f|
       f.write(file_data)
     end
 
