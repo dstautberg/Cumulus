@@ -35,7 +35,7 @@ class FileSendMonitor
     return if active_senders >= AppConfig.max_active_uploads
 
     backup_target = BackupTarget.next
-    AppLogger.debug "#{self.class.to_s}: user_file_node=#{backup_target}"
+    AppLogger.debug "#{self.class.to_s}: user_file_node=#{backup_target.inspect}"
     if backup_target
       begin
         node = backup_target.disk.node

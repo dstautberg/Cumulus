@@ -44,8 +44,9 @@ class NodeBroadcastListener
   end
 
   def stop
-    AppLogger.debug "#{self.class.to_s}: stop"
+    AppLogger.debug "#{self.class.to_s}: stop started"
     @running = false
     @listener.join
+    AppLogger.debug "#{self.class.to_s}: stop complete"
   end
 end
