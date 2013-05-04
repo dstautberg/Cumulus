@@ -1,6 +1,7 @@
 .bundle
 log/*.log
-tmp/**/*
+tmp
+tmp_backup
 .idea/*
 db/*.sqlite3
 *.db
