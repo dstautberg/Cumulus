@@ -10,6 +10,7 @@ require "json"
 require "securerandom"
 require "fileutils"
 require "sys/filesystem"
+require "eventmachine"
 
 AppLogger = Logger.new("log/#{APP_ENV}.log")
 

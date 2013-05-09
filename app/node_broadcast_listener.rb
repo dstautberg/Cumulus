@@ -1,13 +1,18 @@
 require 'socket'
 require 'ipaddr'
 
-class NodeBroadcastListener
+class NodeBroadcastListener < EM::Connection
   MULTICAST_ADDR = "225.4.5.6"
   PORT = 11000
 
-  def initialize
-    AppLogger.debug "#{self.class.to_s}: initialize complete"
+  def receive_data(data)
+    AppLogger.debug "#{self.class.to_s}: received data: #{data}"
   end
+
+
+  #def initialize
+  #  AppLogger.debug "#{self.class.to_s}: initialize complete"
+  #end
 
   #MULTICAST_ADDR = "225.4.5.6"
   #PORT = 5000
@@ -22,31 +27,31 @@ class NodeBroadcastListener
 
   # Check code here too: http://www.ruby-forum.com/topic/200353
 
-  def start
-    AppLogger.debug "#{self.class.to_s}: starting"
-    @listener = Thread.new do
-      begin
-        @running = true
-        ip = IPAddr.new(MULTICAST_ADDR).hton + IPAddr.new("0.0.0.0").hton
-        sock = UDPSocket.new
-        sock.setsockopt(Socket::IPPROTO_IP, Socket::IP_ADD_MEMBERSHIP, ip)
-        sock.bind(Socket::INADDR_ANY, PORT)
-        while @running do
-          msg, info = sock.recvfrom(1024)
-          AppLogger.debug "#{self.class.to_s}: Message from #{info[2]} (#{info[3]})/#{info[1]}, length #{msg.size}:\n#{msg}"
-        end
-      end
-      AppLogger.debug "#{self.class.to_s}: stopping"
-    end
-    AppLogger.debug "#{self.class.to_s}: done starting"
-  rescue Exception => e
-    AppLogger.error e
-  end
-
-  def stop
-    AppLogger.debug "#{self.class.to_s}: stop started"
-    @running = false
-    @listener.join
-    AppLogger.debug "#{self.class.to_s}: stop complete"
-  end
+  #def start
+  #  AppLogger.debug "#{self.class.to_s}: starting"
+  #  @listener = Thread.new do
+  #    begin
+  #      @running = true
+  #      ip = IPAddr.new(MULTICAST_ADDR).hton + IPAddr.new("0.0.0.0").hton
+  #      sock = UDPSocket.new
+  #      sock.setsockopt(Socket::IPPROTO_IP, Socket::IP_ADD_MEMBERSHIP, ip)
+  #      sock.bind(Socket::INADDR_ANY, PORT)
+  #      while @running do
+  #        msg, info = sock.recvfrom(1024)
+  #        AppLogger.debug "#{self.class.to_s}: Message from #{info[2]} (#{info[3]})/#{info[1]}, length #{msg.size}:\n#{msg}"
+  #      end
+  #    end
+  #    AppLogger.debug "#{self.class.to_s}: stopping"
+  #  end
+  #  AppLogger.debug "#{self.class.to_s}: done starting"
+  #rescue Exception => e
+  #  AppLogger.error e
+  #end
+  #
+  #def stop
+  #  AppLogger.debug "#{self.class.to_s}: stop started"
+  #  @running = false
+  #  @listener.join
+  #  AppLogger.debug "#{self.class.to_s}: stop complete"
+  #end
 end

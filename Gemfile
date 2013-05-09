@@ -5,6 +5,7 @@ gem "sqlite3"
 gem "json_pure"
 gem "macaddr"
 gem "sys-filesystem"
+gem "eventmachine"
 
 #gem "jdbc-sqlite3"
 #gem "jruby-openssl"
