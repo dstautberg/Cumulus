@@ -1,8 +1,0 @@
-.bundle
-log/*.log
-tmp
-tmp_backup
-.idea/*
-db/*.sqlite3
-*.db
-config/local.rb

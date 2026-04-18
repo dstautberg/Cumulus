@@ -1,1 +1,0 @@
-AppLogger.level = Logger::WARN
