@@ -8,7 +8,7 @@ import logging
 from concurrent import futures
 
 from server.servicers.greeter import GreeterServicer
-import generated.helloworld_pb2_grpc as helloworld_pb2_grpc
+import helloworld_pb2_grpc as helloworld_pb2_grpc
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)

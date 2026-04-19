@@ -2,8 +2,8 @@ import grpc
 import time
 import logging
 
-import generated.helloworld_pb2 as helloworld_pb2
-import generated.helloworld_pb2_grpc as helloworld_pb2_grpc
+import helloworld_pb2 as helloworld_pb2
+import helloworld_pb2_grpc as helloworld_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

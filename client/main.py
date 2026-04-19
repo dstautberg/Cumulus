@@ -7,8 +7,8 @@ Run this file from the repo root: python -m client.main
 import grpc
 import logging
 
-import generated.helloworld_pb2 as helloworld_pb2
-import generated.helloworld_pb2_grpc as helloworld_pb2_grpc
+import helloworld_pb2 as helloworld_pb2
+import helloworld_pb2_grpc as helloworld_pb2_grpc
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
