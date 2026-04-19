@@ -1,20 +1,20 @@
 """
 gRPC Server - Greeter Service
-Run this file to start the server: python server.py
+Run this file from the repo root: python -m server.main
 """
 
 import grpc
-import time
 import logging
 from concurrent import futures
 
-import generated.helloworld_pb2 as helloworld_pb2
+from server.servicers.greeter import GreeterServicer
 import generated.helloworld_pb2_grpc as helloworld_pb2_grpc
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 PORT = 50051
+
 
 def serve():
     """Start the gRPC server."""

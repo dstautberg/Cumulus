@@ -1,7 +1,7 @@
 """
 gRPC Client - Greeter Service
-Run this file to test the server: python client.py
-(Make sure server.py is running first)
+Run this file from the repo root: python -m client.main
+(Make sure the server is running first: python -m server.main)
 """
 
 import grpc
