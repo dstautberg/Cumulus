@@ -1,5 +1,5 @@
 """
-gRPC Server - Greeter Service
+gRPC Server - Cumulus
 Run this file from the repo root: python -m server.main
 """
 
@@ -7,8 +7,11 @@ import grpc
 import logging
 from concurrent import futures
 
+from server.db import initialize as init_db
 from server.servicers.greeter import GreeterServicer
-import helloworld_pb2_grpc as helloworld_pb2_grpc
+from server.servicers.registration import RegistrationServicer
+import helloworld_pb2_grpc
+import cumulus_pb2_grpc
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -18,6 +21,8 @@ PORT = 50051
 
 def serve():
     """Start the gRPC server."""
+    init_db()
+
     server = grpc.server(
         futures.ThreadPoolExecutor(max_workers=10),
         options=[
@@ -27,6 +32,7 @@ def serve():
     )
 
     helloworld_pb2_grpc.add_GreeterServicer_to_server(GreeterServicer(), server)
+    cumulus_pb2_grpc.add_RegistrationServicer_to_server(RegistrationServicer(), server)
 
     server.add_insecure_port(f"[::]:{PORT}")
     server.start()
@@ -38,7 +44,7 @@ def serve():
         server.wait_for_termination()
     except KeyboardInterrupt:
         logger.info("Shutting down server...")
-        server.stop(grace=5)  # 5-second grace period for in-flight requests
+        server.stop(grace=5)
         logger.info("Server stopped.")
 
 

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package cumulus;
+
+// The registration service definition
+service Registration {
+  // Register a client with the server
+  rpc Register (RegisterRequest) returns (RegisterReply);
+}
+
+// The request message containing client info
+message RegisterRequest {
+  string hostname = 1;
+  string ip_address = 2;
+  string os_platform = 3;
+}
+
+// The response message confirming registration
+message RegisterReply {
+  bool success = 1;
+  string message = 2;
+}
