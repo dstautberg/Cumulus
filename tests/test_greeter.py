@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import MagicMock
 
 from server.servicers.greeter import GreeterServicer
-import generated.helloworld_pb2 as helloworld_pb2
+import helloworld_pb2 as helloworld_pb2
 
 
 class TestSayHello(unittest.TestCase):
