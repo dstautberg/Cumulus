@@ -35,3 +35,8 @@ Thumbs.db
 # Env files
 .env
 *.env
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal

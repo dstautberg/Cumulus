@@ -4,32 +4,26 @@ Run this file from the repo root: python -m client.main
 (Make sure the server is running first: python -m server.main)
 """
 
+import os
+import dotenv
 import grpc
 import logging
 import platform
 import socket
-
 import cumulus_pb2
 import cumulus_pb2_grpc
+from common.network import get_local_ip, get_hostname
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-SERVER_ADDRESS = "localhost:50051"
-
-
-def get_local_ip() -> str:
-    """Resolve the local IP address used to reach the server."""
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-            s.connect(("8.8.8.8", 80))
-            return s.getsockname()[0]
-    except Exception:
-        return "127.0.0.1"
-
+dotenv.load_dotenv()
+IP = os.environ.get("SERVER_IP", '127.0.0.1')
+PORT = int(os.environ.get("SERVER_PORT", 50051))
+SERVER_ADDRESS = f"{IP}:{PORT}"
 
 def register():
-    hostname = socket.gethostname()
+    hostname = get_hostname()
     ip_address = get_local_ip()
     os_platform = f"{platform.system()} {platform.release()}"
 
