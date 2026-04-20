@@ -2,21 +2,54 @@ syntax = "proto3";
 
 package cumulus;
 
-// The registration service definition
+// ---------------------------------------------------------------------------
+// Registration service
+// ---------------------------------------------------------------------------
+
 service Registration {
-  // Register a client with the server
   rpc Register (RegisterRequest) returns (RegisterReply);
 }
 
-// The request message containing client info
 message RegisterRequest {
-  string hostname = 1;
-  string ip_address = 2;
+  string hostname    = 1;
+  string ip_address  = 2;
   string os_platform = 3;
 }
 
-// The response message confirming registration
 message RegisterReply {
-  bool success = 1;
+  bool   success = 1;
   string message = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Backup service
+// ---------------------------------------------------------------------------
+
+service Backup {
+  // Client streams file chunks up to the server
+  rpc SendFile (stream FileChunk) returns (SendFileReply);
+
+  // Receiving client requests a file; server streams chunks back
+  rpc FetchFile (FetchFileRequest) returns (stream FileChunk);
+}
+
+message FileChunk {
+  string file_id         = 1;  // Unique ID for this file transfer
+  string file_path       = 2;  // Original relative path (e.g. "docs/report.pdf")
+  string checksum        = 3;  // SHA-256 of the full file (sent on first chunk)
+  int64  file_size       = 4;  // Total file size in bytes (sent on first chunk)
+  int32  chunk_index     = 5;  // 0-based chunk sequence number
+  int32  total_chunks    = 6;  // Total number of chunks for this file
+  bytes  data            = 7;  // Chunk payload
+  string source_hostname = 8;  // Hostname of the sending client
+}
+
+message SendFileReply {
+  bool   success = 1;
+  string message = 2;
+  string file_id = 3;
+}
+
+message FetchFileRequest {
+  string file_id = 1;
 }
