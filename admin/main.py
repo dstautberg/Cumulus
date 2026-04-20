@@ -37,4 +37,5 @@ def api_clients():
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    return TEMPLATE_PATH.read_text()
+    # Read template with explicit UTF-8 to avoid platform default (cp1252) decode errors
+    return TEMPLATE_PATH.read_text(encoding='utf-8')

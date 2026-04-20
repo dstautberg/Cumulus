@@ -19,6 +19,34 @@
       --sans:     'Syne', sans-serif;
     }
 
+    /* Light theme overrides (apply by adding .light to <html>) */
+    .light {
+      --bg:       #ffffff;
+      --surface:  #f6f9fb;
+      --border:   #e6eef5;
+      --accent:   #0066cc;
+      --accent2:  #003f9a;
+      --success:  #0a9a46;
+      --muted:    #5b6b72;
+      --text:     #0b1220;
+    }
+
+    /* When .light is not present, the :root dark variables are used (current defaults) */
+
+    /* Theme toggle button */
+    #theme-toggle {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-family: var(--mono);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -218,7 +246,6 @@
 
     .hostname {
       font-weight: 600;
-      color: #fff;
     }
 
     .badge {
@@ -277,6 +304,31 @@
   </style>
 </head>
 <body>
+  <script>
+    (function(){
+      const KEY = 'theme'; // 'light' | 'dark' | 'system'
+      const saved = localStorage.getItem(KEY);
+      function systemPref() {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      const theme = (saved === 'light' || saved === 'dark') ? saved : systemPref();
+      if (theme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      // expose for later DOM script to update the button state
+      window.__CUMULUS_THEME = { key: KEY, saved };
+      // react to system changes only when user hasn't explicitly chosen
+      if (!saved) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+          const t = e.matches ? 'dark' : 'light';
+          if (!localStorage.getItem(KEY)) {
+            if (t === 'light') document.documentElement.classList.add('light');
+            else document.documentElement.classList.remove('light');
+          }
+        });
+      }
+    })();
+  </script>
+
   <div class="wrapper">
     <header>
       <div class="logo">
@@ -287,6 +339,7 @@
         <div>Last updated: <span id="last-updated">—</span></div>
         <div>Refreshes in: <span id="countdown">30</span>s</div>
       </div>
+      <button id="theme-toggle" aria-label="Toggle theme">🌓</button>
     </header>
 
     <div class="stats">
@@ -414,6 +467,22 @@
     }
 
     fetchClients();
+    // Theme toggle button handler
+    (function(){
+      const btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      const KEY = window.__CUMULUS_THEME?.key || 'theme';
+      function isLight() { return document.documentElement.classList.contains('light'); }
+      function applyBtn() { btn.textContent = isLight() ? '☀️' : '🌙'; }
+      applyBtn();
+      btn.addEventListener('click', () => {
+        const nextIsLight = !isLight();
+        document.documentElement.classList.toggle('light', nextIsLight);
+        localStorage.setItem(KEY, nextIsLight ? 'light' : 'dark');
+        applyBtn();
+      });
+    })();
+
     startCountdown();
   </script>
 </body>
