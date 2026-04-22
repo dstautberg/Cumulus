@@ -2,8 +2,8 @@ import grpc
 import time
 import logging
 
-import helloworld_pb2 as helloworld_pb2
-import helloworld_pb2_grpc as helloworld_pb2_grpc
+import helloworld_pb2
+import helloworld_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
@@ -33,4 +33,4 @@ class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
         for greeting in greetings:
             if context.is_active():
                 yield helloworld_pb2.HelloReply(message=greeting)
-                time.sleep(0.5)  # Simulate streaming delay
+                time.sleep(0.5)

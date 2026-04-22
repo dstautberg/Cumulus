@@ -65,6 +65,39 @@ def save_chunk(file_id: str, file_path: str, checksum: str, file_size: int,
         conn.commit()
 
 
+def get_next_file_chunk_metas() -> list:
+    """
+    Return chunk metadata (no data) for the oldest fully-uploaded file.
+    A file is considered complete when the number of received chunks
+    equals total_chunks. Returns an empty list if no files are ready.
+    """
+    with get_connection() as conn:
+        return conn.execute("""
+            SELECT file_id, file_path, checksum, file_size,
+                   chunk_index, total_chunks, source_hostname
+            FROM chunks
+            WHERE file_id = (
+                SELECT file_id
+                FROM chunks
+                WHERE downloaded_at IS NULL
+                GROUP BY file_id
+                HAVING COUNT(*) = MAX(total_chunks)
+                ORDER BY file_id ASC
+                LIMIT 1
+            )
+            ORDER BY chunk_index ASC
+        """).fetchall()
+
+
+def get_chunks_for_file(file_id: str) -> list:
+    """Return all chunks (including data) for a file, ordered by chunk_index."""
+    with get_connection() as conn:
+        return conn.execute(
+            "SELECT * FROM chunks WHERE file_id = ? ORDER BY chunk_index",
+            (file_id,)
+        ).fetchall()
+
+
 def file_exists(file_id: str) -> bool:
     """Return True if any chunks exist for the given file_id."""
     with get_connection() as conn:
@@ -72,15 +105,6 @@ def file_exists(file_id: str) -> bool:
             "SELECT 1 FROM chunks WHERE file_id = ? LIMIT 1", (file_id,)
         ).fetchone()
         return row is not None
-
-
-def get_chunks_for_file(file_id: str) -> list:
-    """Return all chunks for a file, ordered by chunk_index."""
-    with get_connection() as conn:
-        return conn.execute(
-            "SELECT * FROM chunks WHERE file_id = ? ORDER BY chunk_index",
-            (file_id,)
-        ).fetchall()
 
 
 def mark_file_downloaded(file_id: str):
