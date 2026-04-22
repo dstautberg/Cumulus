@@ -31,27 +31,48 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-SERVER_IP    = os.environ.get("SERVER_IP", "127.0.0.1")
-SERVER_PORT  = int(os.environ.get("SERVER_PORT", 50051))
-BACKUP_DIR   = os.environ.get("BACKUP_DIR", "")
-RESTORE_DIR  = os.environ.get("RESTORE_DIR", "")
-INTERVAL_MIN = int(os.environ.get("BACKUP_INTERVAL_MINUTES", 15))
+SERVER_IP      = os.environ.get("SERVER_IP", "127.0.0.1")
+SERVER_PORT    = int(os.environ.get("SERVER_PORT", 50051))
+BACKUP_DIR     = os.environ.get("BACKUP_DIR", "")
+RESTORE_DIR    = os.environ.get("RESTORE_DIR", "")
+INTERVAL_MIN   = int(os.environ.get("BACKUP_INTERVAL_MINUTES", 15))
 SERVER_ADDRESS = f"{SERVER_IP}:{SERVER_PORT}"
+
+
+def _handle_grpc_error(e: grpc.RpcError, context: str):
+    """Log a friendly message for common gRPC connection errors."""
+    code = e.code()
+    if code == grpc.StatusCode.UNAVAILABLE:
+        logger.error(
+            f"{context}: Could not connect to server at {SERVER_ADDRESS}. "
+            f"Is the server running? (gRPC: UNAVAILABLE)"
+        )
+    elif code == grpc.StatusCode.DEADLINE_EXCEEDED:
+        logger.error(f"{context}: Connection timed out ({SERVER_ADDRESS}).")
+    elif code == grpc.StatusCode.UNAUTHENTICATED:
+        logger.error(f"{context}: Authentication failed ({SERVER_ADDRESS}).")
+    else:
+        logger.error(f"{context}: gRPC error {code}: {e.details()}")
 
 
 def register():
     """Register this client with the server."""
-    with grpc.insecure_channel(SERVER_ADDRESS) as channel:
-        stub = cumulus_pb2_grpc.RegistrationStub(channel)
-        response = stub.Register(cumulus_pb2.RegisterRequest(
-            hostname=get_hostname(),
-            ip_address=get_local_ip(),
-            os_platform=f"{platform.system()} {platform.release()}",
-        ))
-        if response.success:
-            logger.info(f"Registered: {response.message}")
-        else:
-            logger.error(f"Registration failed: {response.message}")
+    try:
+        with grpc.insecure_channel(SERVER_ADDRESS) as channel:
+            stub = cumulus_pb2_grpc.RegistrationStub(channel)
+            response = stub.Register(cumulus_pb2.RegisterRequest(
+                hostname=get_hostname(),
+                ip_address=get_local_ip(),
+                os_platform=f"{platform.system()} {platform.release()}",
+            ))
+            if response.success:
+                logger.info(f"Registered: {response.message}")
+            else:
+                logger.error(f"Registration failed: {response.message}")
+    except grpc.RpcError as e:
+        _handle_grpc_error(e, "[register]")
+        return False
+    return True
 
 
 def backup_loop():
@@ -66,6 +87,8 @@ def backup_loop():
                     upload_all(cumulus_pb2_grpc.BackupStub(channel))
             else:
                 logger.info("[backup] Nothing to upload.")
+        except grpc.RpcError as e:
+            _handle_grpc_error(e, "[backup]")
         except Exception as e:
             logger.error(f"[backup] Unexpected error: {e}")
         time.sleep(INTERVAL_MIN * 60)
@@ -78,6 +101,8 @@ def restore_loop():
         try:
             with grpc.insecure_channel(SERVER_ADDRESS) as channel:
                 download_all(cumulus_pb2_grpc.BackupStub(channel), RESTORE_DIR)
+        except grpc.RpcError as e:
+            _handle_grpc_error(e, "[restore]")
         except Exception as e:
             logger.error(f"[restore] Unexpected error: {e}")
         time.sleep(INTERVAL_MIN * 60)
@@ -85,7 +110,9 @@ def restore_loop():
 
 def run():
     init_db()
-    register()
+
+    if not register():
+        logger.warning("Continuing despite registration failure — will retry on next cycle.")
 
     threads = []
 
@@ -108,7 +135,7 @@ def run():
     for t in threads:
         t.start()
 
-    logger.info(f"Cumulus client running. Press Ctrl+C to stop.")
+    logger.info("Cumulus client running. Press Ctrl+C to stop.")
 
     try:
         while True:
